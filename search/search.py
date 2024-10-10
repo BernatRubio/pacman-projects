@@ -120,35 +120,37 @@ class SearchNode:
 
 def depth_first_search(problem):
     """
-    Search the deepest nodes in the search tree first.
+    Search the deepest nodes in the search tree first using a stack for frontier.
 
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print("Start:", problem.get_start_state())
-    print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
-    print("Start's successors:", problem.get_successors(problem.get_start_state()))
+    Returns a list of actions that reaches the goal.
     """
-    "*** YOUR CODE HERE ***"
     print("Start:", problem.get_start_state())
     print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
     frontier = util.Stack()
-    s0 = problem.get_start_state()
-    frontier.push(s0)
-    result = []
+    start_state = problem.get_start_state()
+    # Push the initial state along with the path to reach it (initially empty)
+    frontier.push((start_state, [], 0))
+    expanded_nodes = set()  # Using a set to track expanded nodes
+
     while not frontier.is_empty():
-        node = frontier.pop()
-        if problem.is_goal_state(node):
-            return node
-        if not frontier.contains(node):
-            for child in problem.get_successors(node):
-                frontier.push(child)
-    return result
-    util.raise_not_defined()
+        current_state, path, cost = frontier.pop()
+
+        # Mark the state as expanded
+        expanded_nodes.add(current_state)
+
+        # Check if the current state is the goal state
+        if problem.is_goal_state(current_state):
+            return path  # Return the path that led to the goal
+
+        # Expand the current state
+        for successor, action, cost in problem.get_successors(current_state):
+            if successor not in expanded_nodes and not frontier.contains(successor):
+                # Append the action to the path and push the new state onto the stack
+                frontier.push((successor, path + [action], cost))
+
+    return []  # Return an empty list if no path to the goal is found
+
 
 
 
