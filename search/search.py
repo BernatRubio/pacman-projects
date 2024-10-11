@@ -205,8 +205,9 @@ def uniform_cost_search(problem):
             return path
             
         for successor_state, action, successor_cost in problem.get_successors(current_state): 
-            if (successor_state not in expanded_nodes):            
-                frontier.push((successor_state, path + [action], cost + successor_cost), cost + successor_cost)
+            if (successor_state not in expanded_nodes):
+                priority =  cost + successor_cost             
+                frontier.push((successor_state, path + [action], cost + successor_cost), priority)
     
     return []
 
@@ -220,7 +221,28 @@ def null_heuristic(state, problem=None):
 def a_star_search(problem, heuristic=null_heuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
+    expanded_nodes = set()
+    frontier = util.PriorityQueue()
+    start_state = (problem.get_start_state(), [], 0)
+    frontier.push(start_state, 0)
+    
+    while not frontier.is_empty():
+        current_state, path, cost = frontier.pop()
+        
+        if current_state in expanded_nodes:
+            continue
+        
+        expanded_nodes.add(current_state)
+        
+        if problem.is_goal_state(current_state):
+            return path
+            
+        for successor_state, action, successor_cost in problem.get_successors(current_state): 
+            if (successor_state not in expanded_nodes):
+                priority = cost + successor_cost + heuristic(successor_state, problem)             
+                frontier.push((successor_state, path + [action], cost + successor_cost), priority)
+    
+    return []
 
 # Abbreviations
 bfs = breadth_first_search
