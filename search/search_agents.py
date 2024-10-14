@@ -532,7 +532,61 @@ def food_heuristic(state, problem):
     """
     position, food_grid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    food_count = 0
+    middle_point = [0,0]
+    
+    if (len(problem.heuristic_info) == 0):
+        x_coord_total = 0
+        y_coord_total = 0
+        row_index = -1
+        column_index = -1
+        for row in food_grid:
+            row_index += 1
+            for value in row:
+                column_index += 1
+                if value == True:
+                    x_coord_total += row_index
+                    y_coord_total += column_index
+                    food_count += 1
+        middle_point[0] = x_coord_total // food_count
+        middle_point[1] = y_coord_total // food_count
+        problem.heuristic_info.update(
+            {
+                'middlePointFood': middle_point,
+                'foodCount': food_count,
+                'foodGrid': food_grid
+            }
+        )
+        
+        return util.manhattan_distance(middle_point, position)*food_count
+    
+    else:
+        food_count = problem.heuristic_info['foodCount']
+        food_grid = problem.heuristic_info['foodGrid']
+        middle_point = problem.heuristic_info['middlePointFood']
+        
+        if (food_grid[position[0]][position[1]]):
+            food_count -= 1
+            problem.heuristic_info['foodCount'] = food_count
+            food_grid[position[0]][position[1]] = False
+        
+            x_coord_total = 0
+            y_coord_total = 0
+            row_index = -1
+            column_index = -1
+            for row in food_grid:
+                row_index += 1
+                for value in row:
+                    column_index += 1
+                    if value == True:
+                        x_coord_total += row_index
+                        y_coord_total += column_index
+                        food_count += 1
+            if food_count != 0:
+                middle_point[0] = x_coord_total // food_count
+                middle_point[1] = y_coord_total // food_count
+        
+        return util.manhattan_distance(middle_point, position)*food_count
 
 
 def simplified_corners_heuristic(state, problem):
