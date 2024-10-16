@@ -530,64 +530,73 @@ def food_heuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristic_info['wallCount']
     """
+    import sys
     position, food_grid = state
     "*** YOUR CODE HERE ***"
-    food_count = 0
-    middle_point = [0,0]
+    row_index = 0
+    column_index = 0
     
     if (len(problem.heuristic_info) == 0):
-        x_coord_total = 0
-        y_coord_total = 0
-        row_index = -1
-        column_index = -1
-        for row in food_grid:
-            row_index += 1
-            for value in row:
-                column_index += 1
-                if value == True:
-                    x_coord_total += row_index
-                    y_coord_total += column_index
-                    food_count += 1
-        middle_point[0] = x_coord_total // food_count
-        middle_point[1] = y_coord_total // food_count
         problem.heuristic_info.update(
             {
-                'middlePointFood': middle_point,
-                'foodCount': food_count,
+                'foodCount': food_grid.count(True),
                 'foodGrid': food_grid
             }
         )
+        current_food_grid = problem.heuristic_info['foodGrid']
+        current_food_count = problem.heuristic_info['foodCount']
         
-        return util.manhattan_distance(middle_point, position)*food_count
-    
-    else:
-        food_count = problem.heuristic_info['foodCount']
-        food_grid = problem.heuristic_info['foodGrid']
-        middle_point = problem.heuristic_info['middlePointFood']
-        
-        if (food_grid[position[0]][position[1]]):
-            food_count -= 1
-            problem.heuristic_info['foodCount'] = food_count
-            food_grid[position[0]][position[1]] = False
-        
-            x_coord_total = 0
-            y_coord_total = 0
-            row_index = -1
-            column_index = -1
-            for row in food_grid:
-                row_index += 1
-                for value in row:
-                    column_index += 1
-                    if value == True:
-                        x_coord_total += row_index
-                        y_coord_total += column_index
-                        food_count += 1
-            if food_count != 0:
-                middle_point[0] = x_coord_total // food_count
-                middle_point[1] = y_coord_total // food_count
-        
-        return util.manhattan_distance(middle_point, position)*food_count
+        if current_food_grid[position[0]][position[1]] == True:
+            current_food_grid[position[0]][position[1]] = False
+            current_food_count -= 1
+            
+        min_distance = sys.maxsize
+        for row in current_food_grid:
+            column_index = 0
+            for value in row:
+                if value == True:
+                    # Si aconseguim que aquesta distancia sigui maze distance ho tindrem bé penso
+                    min_distance = min(min_distance, maze_distance(position, (row_index, column_index), problem.starting_game_state))
+                    print(f"min_distance: {min_distance} to position: {(row_index,column_index)}")
+                column_index += 1
+            row_index += 1
 
+        problem.heuristic_info.update(
+            {
+                'foodCount': current_food_count,
+                'foodGrid': current_food_grid
+            }
+        )
+        
+        return min_distance*current_food_count
+
+    else:
+        current_food_grid = problem.heuristic_info['foodGrid']
+        current_food_count = problem.heuristic_info['foodCount']
+        
+        if current_food_grid[position[0]][position[1]] == True:
+            current_food_grid[position[0]][position[1]] = False
+            current_food_count -= 1
+            
+        min_distance = sys.maxsize
+        for row in current_food_grid:
+            column_index = 0
+            for value in row:
+                if value == True:
+                    # Si aconseguim que aquesta distancia sigui maze distance ho tindrem bé penso
+                    min_distance = min(min_distance, maze_distance(position, (row_index, column_index), problem.starting_game_state))
+                    print(f"min_distance: {min_distance} to position: {(row_index,column_index)}")
+                column_index += 1
+            row_index += 1
+
+        problem.heuristic_info.update(
+            {
+                'foodCount': current_food_count,
+                'foodGrid': current_food_grid
+            }
+        )
+        
+        return min_distance*current_food_count
 
 def simplified_corners_heuristic(state, problem):
     """
