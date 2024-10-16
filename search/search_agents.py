@@ -557,7 +557,7 @@ def food_heuristic(state, problem):
                 if value == True:
                     # Si aconseguim que aquesta distancia sigui maze distance ho tindrem bé penso
                     min_distance = min(min_distance, maze_distance(position, (row_index, column_index), problem.starting_game_state))
-                    print(f"min_distance: {min_distance} to position: {(row_index,column_index)}")
+                    print(f"min_distance: {min_distance} for position: {(position[0],position[1])} to closest food")
                 column_index += 1
             row_index += 1
 
@@ -585,7 +585,7 @@ def food_heuristic(state, problem):
                 if value == True:
                     # Si aconseguim que aquesta distancia sigui maze distance ho tindrem bé penso
                     min_distance = min(min_distance, maze_distance(position, (row_index, column_index), problem.starting_game_state))
-                    print(f"min_distance: {min_distance} to position: {(row_index,column_index)}")
+                    print(f"min_distance: {min_distance} for position: {(position[0],position[1])} to closest food")
                 column_index += 1
             row_index += 1
 
