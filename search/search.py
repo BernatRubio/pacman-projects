@@ -148,11 +148,6 @@ def depth_first_search(problem):
             return path
             
         for successor_state, action, successor_cost in problem.get_successors(current_state):
-            # HERE COMMENTED APPROACH IS GRADED AS 0 FOR SOME REASON
-            # frontier_coords = [coord for coord, _, _ in frontier.list]
-            # if (successor_state not in frontier_coords) and (successor_state not in expanded_nodes):
-            #     frontier.push((successor_state, path + [action], cost + successor_cost))
-            
             if (not frontier.contains(successor_state)) and (successor_state not in expanded_nodes):
                 frontier.push((successor_state, path + [action], cost + successor_cost))
     
@@ -174,10 +169,6 @@ def breadth_first_search(problem):
             return path
             
         for successor_state, action, successor_cost in problem.get_successors(current_state):
-            # HERE COMMENTED APPROACH IS GRADED AS 0 FOR SOME REASON
-            # if (not frontier.contains(successor_state)) and (successor_state not in expanded_nodes):
-            #     frontier.push((successor_state, path + [action], cost + successor_cost))
-            
             frontier_coords = [coord for coord, _, _ in frontier.list]
             if (successor_state not in frontier_coords) and (successor_state not in expanded_nodes):
                 frontier.push((successor_state, path + [action], cost + successor_cost))
@@ -195,7 +186,6 @@ def uniform_cost_search(problem):
     while not frontier.is_empty():
         current_state, path, cost = frontier.pop()
         
-        # For some reason this if statement makes the autograder mark as correct, but without it pacman also finds a solution.
         if current_state in expanded_nodes:
             continue
         
