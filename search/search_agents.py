@@ -533,14 +533,16 @@ def food_heuristic(state, problem):
     position, food_grid = state
     "*** YOUR CODE HERE ***"
     food_list = food_grid.as_list()
-    problem_state = problem.starting_game_state
+    problem_state = problem.starting_game_state # We save this state in order to use maze_distance function
     
-    if not food_list:
+    if not food_list: # If there is no food in the maze then the heuristic will return 0, as we are in the solution
         return 0
     
     max_distance = 0
-    for food in food_list:
-        max_distance = max(max_distance, maze_distance(position, food, problem_state))
+    for food in food_list: 
+        max_distance = max(max_distance, maze_distance(position, food, problem_state)) # We compute the heuristic as the max 
+        # maze distance, as it is consistent and it happens to be the one which estimates a greater heuristic so it will 
+        # perform better
     return max_distance
 
 def simplified_corners_heuristic(state, problem):

@@ -135,7 +135,7 @@ def depth_first_search(problem):
     """
     "*** YOUR CODE HERE ***"
     
-    expanded_nodes = set()
+    expanded_nodes = set() # We use a set as it is faster to search presence of an element
     frontier = util.Stack()
     start_state = (problem.get_start_state(), [], 0)
     frontier.push(start_state)
@@ -149,7 +149,9 @@ def depth_first_search(problem):
             
         for successor_state, action, successor_cost in problem.get_successors(current_state):
             if (not frontier.contains(successor_state)) and (successor_state not in expanded_nodes):
-                frontier.push((successor_state, path + [action], cost + successor_cost))
+                frontier.push((successor_state, path + [action], cost + successor_cost)) # Instead of using get_path() function
+                # we add in each iteration the accumulated path plus the current successor node action, so when we reach solution we 
+                # already have the full path
     
     return []
 
@@ -186,7 +188,8 @@ def uniform_cost_search(problem):
     while not frontier.is_empty():
         current_state, path, cost = frontier.pop()
         
-        if current_state in expanded_nodes:
+        if current_state in expanded_nodes: # We check if current_state was previously expanded, and if it was we discard it as
+            # now it must have a greater cost
             continue
         
         expanded_nodes.add(current_state)
