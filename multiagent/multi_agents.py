@@ -69,12 +69,37 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successor_game_state = current_game_state.generate_pacman_successor(action)
         new_pos = successor_game_state.get_pacman_position()
-        new_food = successor_game_state.get_food()
+        new_food = successor_game_state.get_food().as_list()
         new_ghost_states = successor_game_state.get_ghost_states()
         new_scared_times = [ghostState.scared_timer for ghostState in new_ghost_states]
         
         "*** YOUR CODE HERE ***"
-        return successor_game_state.get_score()
+        SAFE_GHOST_DISTANCE = 2
+        import sys
+        
+        if len(current_game_state.get_food().as_list()) > len(new_food):
+            return sys.maxsize
+        
+        if not new_food:
+            return sys.maxsize
+        if current_game_state.get_pacman_position() == new_pos:
+            return -sys.maxsize
+        
+        scared_time_sum = sum(new_scared_times)
+        food_count = len(new_food)
+        
+        min_ghost_distance = sys.maxsize
+        for ghost_state in new_ghost_states:
+            min_ghost_distance = min(min_ghost_distance, manhattan_distance(new_pos, ghost_state.get_position()))
+        
+        if min_ghost_distance < SAFE_GHOST_DISTANCE:
+            return -sys.maxsize
+        
+        food_distance = 0
+        for food in new_food:
+            food_distance += manhattan_distance(food, new_pos)
+        
+        return (scared_time_sum) / (food_distance+food_count)
 
 def score_evaluation_function(current_game_state):
     """
