@@ -74,32 +74,32 @@ class ReflexAgent(Agent):
         new_scared_times = [ghostState.scared_timer for ghostState in new_ghost_states]
         
         "*** YOUR CODE HERE ***"
-        SAFE_GHOST_DISTANCE = 2
-        import sys
-        
-        if len(current_game_state.get_food().as_list()) > len(new_food):
-            return sys.maxsize
-        
-        if not new_food:
-            return sys.maxsize
-        if current_game_state.get_pacman_position() == new_pos:
-            return -sys.maxsize
-        
-        scared_time_sum = sum(new_scared_times)
-        food_count = len(new_food)
-        
-        min_ghost_distance = sys.maxsize
-        for ghost_state in new_ghost_states:
-            min_ghost_distance = min(min_ghost_distance, manhattan_distance(new_pos, ghost_state.get_position()))
-        
-        if min_ghost_distance < SAFE_GHOST_DISTANCE:
-            return -sys.maxsize
-        
-        food_distance = 0
-        for food in new_food:
-            food_distance += manhattan_distance(food, new_pos)
-        
-        return (scared_time_sum) / (food_distance+food_count)
+        # Initialize evaluation score
+        score = successor_game_state.get_score()  # Start with the game's current score
+
+        # Feature 1: Distance to the closest food
+        if new_food:
+            food_distances = [manhattan_distance(new_pos, food) for food in new_food]
+            closest_food_distance = min(food_distances)
+            score += 10 / closest_food_distance  # Closer food gives higher score
+
+        # Feature 2: Ghost distances and scared times
+        for ghost_state, scared_time in zip(new_ghost_states, new_scared_times):
+            ghost_pos = ghost_state.get_position()
+            ghost_distance = manhattan_distance(new_pos, ghost_pos)
+
+            if scared_time > 0:  # Ghost is scared
+                # Closer distance to scared ghost is good, incentivize approaching
+                score += 200 / ghost_distance if ghost_distance > 0 else 200
+            else:  # Ghost is not scared
+                # Penalize being too close to an active ghost
+                if ghost_distance > 0:
+                    score -= 100 / ghost_distance
+
+        # Feature 3: Number of remaining food pellets
+        score -= 10 * len(new_food)  # Fewer food pellets left is better
+
+        return score
 
 def score_evaluation_function(current_game_state):
     """
@@ -161,6 +161,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
+        
         util.raise_not_defined()
     
 
