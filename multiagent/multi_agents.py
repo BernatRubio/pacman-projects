@@ -143,7 +143,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         and self.evaluation_function.
 
         Here are some method calls that might be useful when implementing minimax.
-
         game_state.get_legal_actions(agent_index):
         Returns a list of legal actions for an agent
         agent_index=0 means Pacman, ghosts are >= 1
@@ -161,9 +160,56 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        
-        util.raise_not_defined()
-    
+        import sys
+
+        num_agents = game_state.get_num_agents()
+        pacman_index = 0
+
+        def max_func(game_state, depth):
+            # Terminal check for max node (Pacman)
+            if depth == self.depth or game_state.is_win() or game_state.is_lose():
+                return self.evaluation_function(game_state), None
+
+            max_score = -sys.maxsize
+            best_action = None
+            
+            # Loop through all possible actions for Pacman
+            for action in game_state.get_legal_actions(pacman_index):
+                successor_state = game_state.generate_successor(pacman_index, action)
+                score, _ = min_func(1, depth, successor_state)  # Min function for first ghost
+                
+                if score > max_score:
+                    max_score = score
+                    best_action = action
+
+            return max_score, best_action
+
+        def min_func(agent_index, depth, game_state):
+            # Terminal check for min node (Ghosts)
+            if game_state.is_win() or game_state.is_lose():
+                return self.evaluation_function(game_state), None
+
+            min_score = sys.maxsize
+            best_action = None
+            
+            # Loop through all possible actions for this ghost
+            for action in game_state.get_legal_actions(agent_index):
+                successor_state = game_state.generate_successor(agent_index, action)
+                
+                if agent_index == num_agents - 1:  # Last ghost moves, Pacman goes next
+                    score, _ = max_func(successor_state, depth + 1)
+                else:  # Next ghost moves
+                    score, _ = min_func(agent_index + 1, depth, successor_state)
+
+                if score < min_score:
+                    min_score = score
+                    best_action = action
+
+            return min_score, best_action
+
+        # Start the minimax recursion from Pacman's perspective (maximizer)
+        _, action = max_func(game_state, 0)
+        return action
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
