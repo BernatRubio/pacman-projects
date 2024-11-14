@@ -164,9 +164,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         num_agents = game_state.get_num_agents()
         pacman_index = 0
+        INITIAL_DEPTH = 0
 
         def max_func(game_state, depth):
-            # Terminal check for max node (Pacman)
+            # Base case for Pacman
             if depth == self.depth or game_state.is_win() or game_state.is_lose():
                 return self.evaluation_function(game_state), None
 
@@ -185,7 +186,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return max_score, best_action
 
         def min_func(agent_index, depth, game_state):
-            # Terminal check for min node (Ghosts)
+            # Base case for Ghosts
             if game_state.is_win() or game_state.is_lose():
                 return self.evaluation_function(game_state), None
 
@@ -207,8 +208,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
             return min_score, best_action
 
-        # Start the minimax recursion from Pacman's perspective (maximizer)
-        _, action = max_func(game_state, 0)
+        _, action = max_func(game_state, INITIAL_DEPTH)
         return action
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -221,8 +221,64 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluation_function
         """
         "*** YOUR CODE HERE ***"
-        util.raise_not_defined()
+        import sys
 
+        num_agents = game_state.get_num_agents()
+        pacman_index = 0
+        INITIAL_DEPTH = 0
+
+        def max_func(game_state, depth, alpha, beta):
+            if depth == self.depth or game_state.is_win() or game_state.is_lose():
+                return self.evaluation_function(game_state), None
+
+            max_score = -sys.maxsize
+            best_action = None
+            
+            for action in game_state.get_legal_actions(pacman_index):
+                successor_state = game_state.generate_successor(pacman_index, action)
+                score, _ = min_func(1, depth, successor_state, alpha, beta)
+                
+                if score > max_score:
+                    max_score = score
+                    best_action = action
+                
+                if max_score > beta: # Beta-cut (we don't take into account equality to avoid expanding unnecessary nodes)
+                    return max_score, best_action
+                
+                alpha = max(alpha , max_score) # Alpha is updated with the max value (MAX is playing)
+
+            return max_score, best_action
+
+        def min_func(agent_index, depth, game_state, alpha, beta):
+            if game_state.is_win() or game_state.is_lose():
+                return self.evaluation_function(game_state), None
+
+            min_score = sys.maxsize
+            best_action = None
+            
+            for action in game_state.get_legal_actions(agent_index):
+                successor_state = game_state.generate_successor(agent_index, action)
+                
+                if agent_index == num_agents - 1:
+                    score, _ = max_func(successor_state, depth + 1, alpha, beta)
+                else:
+                    score, _ = min_func(agent_index + 1, depth, successor_state, alpha, beta)
+
+                if score < min_score:
+                    min_score = score
+                    best_action = action
+
+                if min_score < alpha: # Alpha-cut (we don't take into account equality to avoid expanding unnecessary nodes)
+                    return min_score, best_action
+                
+                beta = min(min_score, beta) #  Beta is updated with the min value (MIN is playing)
+                
+            return min_score, best_action
+
+        alpha = -sys.maxsize
+        beta = sys.maxsize
+        _, action = max_func(game_state, INITIAL_DEPTH, alpha, beta)
+        return action
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
