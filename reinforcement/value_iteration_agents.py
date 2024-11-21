@@ -66,18 +66,20 @@ class ValueIterationAgent(ValueEstimationAgent):
           value iteration, V_k+1(...) depends on V_k(...)'s.
         """
         "*** YOUR CODE HERE ***"
-        import sys
-        states = self.mdp.get_states()
-        for state in states:
-            actions = self.mdp.get_possible_actions(state)
-            max_value = -sys.maxsize
-            max_action = None
-            for action in actions:
-               value = self.compute_q_value_from_values(state, action)
-               if (value > max_value):
-                   max_action = action
-                   max_value = value
-            self.values[state] = max_value
+        for _ in range(self.iterations):
+            new_values = util.Counter()
+
+            for state in self.mdp.get_states():
+                if self.mdp.is_terminal(state):
+                    continue  
+
+                actions = self.mdp.get_possible_actions(state)
+                max_q_value = max(
+                    self.compute_q_value_from_values(state, action) for action in actions
+                )
+                new_values[state] = max_q_value
+
+            self.values = new_values
             
     def get_value(self, state):
         """
@@ -93,7 +95,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         "*** YOUR CODE HERE ***"
         state_probs_list = self.mdp.get_transition_states_and_probs(state, action)
         loop_value = 0
-        reward = self.mdp.get_reward(state, action,state)
+        reward = self.mdp.get_reward(state, action, state)
         for next_state, prob in state_probs_list:
             loop_value += prob*self.get_value(next_state)
         return reward + self.discount*loop_value
@@ -110,15 +112,21 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         import sys
-        values = self.values
-        max_value = -sys.maxsize
-        action = None
-        for key in values.keys():
-            value = values[key]
-            if (value > max_value):
-                action = key
-                max_value = value
-        return action
+        actions = self.mdp.get_possible_actions(state)
+
+        if not actions:
+            return None
+        
+        best_action = None
+        max_q_value = -sys.maxsize
+
+        for action in actions:
+            q_value = self.compute_q_value_from_values(state, action)
+            if (q_value > max_q_value):
+                max_q_value = q_value
+                best_action = action
+
+        return best_action
     
     def get_policy(self, state):
         return self.compute_action_from_values(state)
