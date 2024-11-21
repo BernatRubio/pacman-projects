@@ -70,9 +70,11 @@ class ValueIterationAgent(ValueEstimationAgent):
             new_values = util.Counter()
 
             for state in self.mdp.get_states():
+                # Skip terminal states since their values are fixed.
                 if self.mdp.is_terminal(state):
                     continue  
-
+                
+                # Compute the maximum Q-value over all actions.
                 actions = self.mdp.get_possible_actions(state)
                 max_q_value = max(
                     self.compute_q_value_from_values(state, action) for action in actions
@@ -93,11 +95,16 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
+        # Get the list of possible next states and their associated probabilities 
+        # after taking the specified action in the current state.
         state_probs_list = self.mdp.get_transition_states_and_probs(state, action)
         loop_value = 0
         reward = self.mdp.get_reward(state, action, state)
+        
+        # Loop over the next states and their transition probabilities.
         for next_state, prob in state_probs_list:
             loop_value += prob*self.get_value(next_state)
+        # Return the total Q-value: immediate reward + discounted future expected value.
         return reward + self.discount*loop_value
 
             
@@ -120,8 +127,11 @@ class ValueIterationAgent(ValueEstimationAgent):
         best_action = None
         max_q_value = -sys.maxsize
 
+        # Loop over all possible actions and compute their Q-values.
         for action in actions:
             q_value = self.compute_q_value_from_values(state, action)
+            
+            # If this action's Q-value is higher than the current max, update the best action.
             if (q_value > max_q_value):
                 max_q_value = q_value
                 best_action = action

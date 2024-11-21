@@ -128,6 +128,7 @@ class QLearningAgent(ReinforcementAgent):
         "*** YOUR CODE HERE ***"
         current_pair = self.get_q_value(state, action)
         next_pair = self.compute_value_from_q_values(next_state)
+        # Update the action-value function estimate
         self.q_values[(state, action)] = (1-self.alpha) * current_pair + self.alpha * (reward + (self.discount * next_pair))
       
     def get_policy(self, state):
